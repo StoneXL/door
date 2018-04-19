@@ -21,21 +21,21 @@ import java.io.FileInputStream;
 
 public class SqlUtil {
     static final int SZ_FP_TEMPLATE_SIZE = (570);
-    public static final String DATABASE_FILE_NAME="residential.db";
-    public static final int DATABASE_VERSION=3;
-    private SQLiteDatabase db=null;
-    private SqlHelper sqlHelper=null;
+    public static final String DATABASE_FILE_NAME = "residential.db";
+    public static final int DATABASE_VERSION = 3;
+    private SQLiteDatabase db = null;
+    private SqlHelper sqlHelper = null;
     //private ArrayList<FingerData> fingerList=new ArrayList<FingerData>();
 
-    public SqlUtil(Context context){
-        sqlHelper=new SqlHelper(context);
-        db=sqlHelper.getWritableDatabase();
+    public SqlUtil(Context context) {
+        sqlHelper = new SqlHelper(context);
+        db = sqlHelper.getWritableDatabase();
     }
 
-    public void close(){
-        if(db!=null){
+    public void close() {
+        if (db != null) {
             db.close();
-            db=null;
+            db = null;
         }
     }
    /* public void changeFinger(JSONArray data){
@@ -62,31 +62,30 @@ public class SqlUtil {
         }
     }*/
 
-    public void changeCard(JSONArray data){
-        if(data!=null){
-            for(int i=0;i<data.length();i++){
+    public void changeCard(JSONArray data) {
+        if (data != null) {
+            for (int i = 0; i < data.length(); i++) {
                 try {
                     JSONObject cardItem = data.getJSONObject(i);
                     int lockIndex = cardItem.getInt("lockIndex");
-                    int lockId=cardItem.getInt("lockId");
-                    String cardNo=cardItem.getString("cardNo");
-                    String state=cardItem.getString("state");
-                    if(state.equals("N")||state.equals("F") || state.equals("G")){
-                        writeCard(lockId,lockIndex,cardNo);
-                    }else if(state.equals("D") || state.equals("R")){
-                        removeCard(lockId,lockIndex,cardNo);
+                    int lockId = cardItem.getInt("lockId");
+                    String cardNo = cardItem.getString("cardNo");
+                    String state = cardItem.getString("state");
+                    if (state.equals("N") || state.equals("F") || state.equals("G")) {
+                        writeCard(lockId, lockIndex, cardNo);
+                    } else if (state.equals("D") || state.equals("R")) {
+                        removeCard(lockId, lockIndex, cardNo);
                     }
-                }catch(JSONException e){
+                } catch (JSONException e) {
                 }
             }
         }
     }
 
-    public void clearDeviceData(){
-        try
-        {
-            db.execSQL("DELETE FROM RE_CARD", new Object[] {});
-        }finally{
+    public void clearDeviceData() {
+        try {
+            db.execSQL("DELETE FROM RE_CARD", new Object[]{});
+        } finally {
         }
 
        /* try
@@ -96,20 +95,20 @@ public class SqlUtil {
         }*/
         //fingerList.clear();
     }
-    protected void writeCard(int lockId,int lockIndex,String cardNo){
-        try
-        {
-            db.execSQL("INSERT INTO RE_CARD(lockId,lockIndex,cardNo)"
-                    + " VALUES(?, ?, ?)", new Object[] {lockId,lockIndex,cardNo});
-        }finally{
+
+    protected void writeCard(int lockId, int lockIndex, String cardNo) {
+        try {
+            db.execSQL("INSERT INTO RE_CARD(lockId,lockIndex,cardNo)" + " VALUES(?, ?, ?)", new
+                    Object[]{lockId, lockIndex, cardNo});
+        } finally {
         }
     }
 
-    protected void removeCard(int lockId,int lockIndex,String cardNo){
-        db.execSQL("DELETE FROM RE_CARD where lockId=? and cardNo=?" ,new Object[] {lockId,cardNo});
+    protected void removeCard(int lockId, int lockIndex, String cardNo) {
+        db.execSQL("DELETE FROM RE_CARD where lockId=? and cardNo=?", new Object[]{lockId, cardNo});
     }
 
-    protected byte[] convertData(String data){
+    protected byte[] convertData(String data) {
         /*
         JSONArray array=null;
         byte[] byteData=null;
@@ -125,7 +124,7 @@ public class SqlUtil {
                 }catch(JSONException e){}
             }
         }*/
-        byte byteData[]=android.util.Base64.decode(data, Base64.DEFAULT);
+        byte byteData[] = android.util.Base64.decode(data, Base64.DEFAULT);
         return byteData;
     }
 
@@ -178,13 +177,13 @@ public class SqlUtil {
         }
     }*/
 
-    protected byte[] initTestFinger(File file){
-        byte[] fingerData=new byte[SZ_FP_TEMPLATE_SIZE];
+    protected byte[] initTestFinger(File file) {
+        byte[] fingerData = new byte[SZ_FP_TEMPLATE_SIZE];
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            fileInputStream.read(fingerData,0,SZ_FP_TEMPLATE_SIZE);
+            fileInputStream.read(fingerData, 0, SZ_FP_TEMPLATE_SIZE);
             fileInputStream.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return fingerData;
@@ -195,7 +194,8 @@ public class SqlUtil {
         writeFinger(lockId,lockIndex,userId,employeeId,fingerData);
     }*/
 
-  /*  protected void writeFinger(int lockId,int lockIndex,int userId,int employeeId,byte[] fingerData){
+  /*  protected void writeFinger(int lockId,int lockIndex,int userId,int employeeId,byte[]
+  fingerData){
         try
         {
             db.execSQL("INSERT INTO RE_FINGER(lockId,lockIndex,userId,employeeId,finger)"
@@ -214,7 +214,8 @@ public class SqlUtil {
         try
         {
             byte[] fingerData=convertData(finger);
-            db.execSQL("UPDATE RE_FINGER set finger=? where lockId=? and userId=? and employeeId=?", new Object[] {fingerData,lockId,userId,employeeId});
+            db.execSQL("UPDATE RE_FINGER set finger=? where lockId=? and userId=? and
+            employeeId=?", new Object[] {fingerData,lockId,userId,employeeId});
             removeFingerFromList(userId,employeeId);
             FingerData fData=new FingerData();
             fData.userId=userId;
@@ -237,7 +238,8 @@ public class SqlUtil {
     }*/
 
     /*protected void removeFinger(int lockId,int lockIndex,int userId,int employeeId){
-        db.execSQL("DELETE FROM RE_FINGER where lockId=? and userId=? and employeeId=?" ,new Object[] {lockId,userId,employeeId});
+        db.execSQL("DELETE FROM RE_FINGER where lockId=? and userId=? and employeeId=?" ,new
+        Object[] {lockId,userId,employeeId});
         removeFingerFromList(userId,employeeId);
     }*/
 
@@ -246,21 +248,23 @@ public class SqlUtil {
         fingerList.clear();
     }*/
 
-    public void clearCard(){
-        db.execSQL("DELETE FROM RE_CARD" ,new Object[]{});
-    }
-    public void insertCard(String cardNo,int lockId){
-        db.execSQL("INSERT INTO RE_CARD(lockId,lockIndex,cardNo)"
-                + " VALUES(?, ?, ?)", new Object[] {lockId,null,cardNo});
+    public void clearCard() {
+        db.execSQL("DELETE FROM RE_CARD", new Object[]{});
     }
 
-    public boolean checkCardAvailable(String cardNo){
-        Cursor cursor = db.rawQuery("select count(*) as cardNum from RE_CARD where cardNo=?",new String[]{cardNo});
-        boolean result=false;
-        if(cursor.moveToFirst()) {
+    public void insertCard(String cardNo, int lockId) {
+        db.execSQL("INSERT INTO RE_CARD(lockId,lockIndex,cardNo)" + " VALUES(?, ?, ?)", new
+                Object[]{lockId, null, cardNo});
+    }
+
+    public boolean checkCardAvailable(String cardNo) {
+        Cursor cursor = db.rawQuery("select count(*) as cardNum from RE_CARD where cardNo=?", new
+                String[]{cardNo});
+        boolean result = false;
+        if (cursor.moveToFirst()) {
             int cardNum = cursor.getInt(cursor.getColumnIndex("cardNum"));
-            if(cardNum>0){
-                result=true;
+            if (cardNum > 0) {
+                result = true;
             }
         }
         cursor.close();
@@ -297,7 +301,8 @@ public class SqlUtil {
 //        return fingerList;
 //    }
 
-   /* public FingerData checkFinger(byte[] thisFinger,IFingerCheck iFingerCheck,int limit,int offset){
+   /* public FingerData checkFinger(byte[] thisFinger,IFingerCheck iFingerCheck,int limit,int
+   offset){
         int listLength=getFingerNum();
         FingerData thisFingerData=null;
         try {
@@ -324,7 +329,8 @@ public class SqlUtil {
 
 //    public int checkFinger(byte[] thisFinger,IFingerCheck iFingerCheck,int limit,int offset){
 //        String sql="select finger,userId from RE_FINGER LIMIT ? OFFSET ?";
-//        Cursor cursor = db.rawQuery(sql,new String[]{String.valueOf(limit),String.valueOf(offset)});
+//        Cursor cursor = db.rawQuery(sql,new String[]{String.valueOf(limit),String.valueOf
+// (offset)});
 //        List<byte[]> fingerList=new ArrayList<byte[]>();
 //        int findUserId=0;
 //        try {
@@ -345,16 +351,16 @@ public class SqlUtil {
 
 class SqlHelper extends SQLiteOpenHelper {
 
-    public SqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                     int version, DatabaseErrorHandler errorHandler){
+    public SqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int
+            version, DatabaseErrorHandler errorHandler) {
         super(context, name, factory, version, errorHandler);
     }
 
-    public SqlHelper(Context context){
-        super(context,SqlUtil.DATABASE_FILE_NAME, null, SqlUtil.DATABASE_VERSION);
+    public SqlHelper(Context context) {
+        super(context, SqlUtil.DATABASE_FILE_NAME, null, SqlUtil.DATABASE_VERSION);
     }
 
-    protected void createDatabase(SQLiteDatabase db){
+    protected void createDatabase(SQLiteDatabase db) {
         StringBuffer stringBuffer = new StringBuffer();
 
         stringBuffer.append("CREATE TABLE IF NOT EXISTS RE_CARD (");
@@ -365,7 +371,7 @@ class SqlHelper extends SQLiteOpenHelper {
         // 执行创建表的SQL语句
         try {
             db.execSQL(stringBuffer.toString());
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -381,11 +387,12 @@ class SqlHelper extends SQLiteOpenHelper {
         // 执行创建表的SQL语句
         try {
             db.execSQL(stringBuffer.toString());
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         // 构建创建表的SQL语句（可以从SQLite Expert工具的DDL粘贴过来加进StringBuffer中）
@@ -394,7 +401,7 @@ class SqlHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if(oldVersion==1){
+        if (oldVersion == 1) {
             StringBuffer stringBuffer = new StringBuffer();
 
             stringBuffer.append("ALTER TABLE RE_FINGER MODIFY finger BLOB;");
@@ -402,11 +409,11 @@ class SqlHelper extends SQLiteOpenHelper {
             // 执行创建表的SQL语句
             try {
                 sqLiteDatabase.execSQL(stringBuffer.toString());
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if(oldVersion==2){
+        if (oldVersion == 2) {
             StringBuffer stringBuffer = new StringBuffer();
 
             stringBuffer.append("ALTER TABLE RE_FINGER Add column employeeId int;");
@@ -414,7 +421,7 @@ class SqlHelper extends SQLiteOpenHelper {
             // 执行创建表的SQL语句
             try {
                 sqLiteDatabase.execSQL(stringBuffer.toString());
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -2626,6 +2626,8 @@ public class MainService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
     protected void initDeviceData() {

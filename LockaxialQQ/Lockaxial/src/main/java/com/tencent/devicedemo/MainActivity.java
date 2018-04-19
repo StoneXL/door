@@ -80,6 +80,7 @@ import com.androidex.utils.Ajax;
 import com.androidex.utils.HttpApi;
 import com.androidex.utils.HttpUtils;
 import com.androidex.utils.NfcReader;
+import com.androidex.utils.SqlUtil;
 import com.androidex.utils.UploadUtil;
 import com.arcsoft.dysmart.ArcsoftManager;
 import com.arcsoft.dysmart.DetecterActivity;
@@ -803,9 +804,9 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                                 (Bitmap.Config.ARGB_8888).build();
 
                 BaseApplication.getApplication().getImageLoader().displayImage("http://www" + ""
-                        + ".tyjdtzjc" + "" + "" +
+                        + ".tyjdtzjc" + "" + "" + "" +
                         ".cn/resource/kindeditor/attached/image/20150831/20150831021658_90595.png" +
-                        "" + "" + "", imageView, options);
+                        "" + "" + "" + "", imageView, options);
                 Log.i("xiao_", "未生成QQ二维码");
             } else {
                 imageView.setImageBitmap(bitmap);
@@ -819,9 +820,9 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                                 (Bitmap.Config.ARGB_8888).build();
 
                 BaseApplication.getApplication().getImageLoader().displayImage("http://www" + ""
-                        + ".tyjdtzjc" + "" + "" +
+                        + ".tyjdtzjc" + "" + "" + "" +
                         ".cn/resource/kindeditor/attached/image/20150831/20150831021658_90595.png" +
-                        "" + "" + "", imageView, options);
+                        "" + "" + "" + "", imageView, options);
             }
         }
     }
@@ -934,7 +935,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
         //在load声音资源后，并不能立即调用play，否则无法播放声音，因为声音资源还没加载完成，应该给足够时间让它加载完成，比如在onCreate中load，在onclick中play
 
         //左声道音量大小,右声道音量大小
-        soundPool.play(keyVoiceIndex, 0.8f, 0.8f,1, -1, 1.0f);
+        soundPool.play(keyVoiceIndex, 0.8f, 0.8f, 1, -1, 1.0f);
     }
 
     protected void initVoiceVolume() {
@@ -1171,6 +1172,10 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
 
     public void onRtcVideoOn() {
         initVideoViews();
+        // TODO: 2018/4/19
+        if (remoteView==null){
+            return;
+        }
         MainService.callConnection.buildVideo(remoteView);//此处接听过快的会导致崩溃
         // java.lang.RuntimeException: Fail to connect to camera service
         videoLayout.setVisibility(View.VISIBLE);
@@ -1602,7 +1607,18 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                     if (str == null || str.equals("")) {
                         //跳转到登录界面
                         Intent intent = new Intent(this, InputCardInfoActivity.class);
+
                         startActivityForResult(intent, INPUT_CARDINFO_REQUESTCODE);
+                        // TODO: 2018/4/19 下面增加,改为获得卡片列表接口做测试
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    addOrDeleteCard();
+                                } catch (Exception e) {
+
+                                }
+                            }
+                        }.start();
                     }
                 }
             } else if (currentStatus == ERROR_MODE) {
@@ -1641,6 +1657,38 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
 
                 }
             }
+        }
+    }
+
+    /**
+     * 从服务器获得已注册卡片列表的接口
+     */
+    private void addOrDeleteCard() {
+        try {
+            String url = "http://192.168.8.146:80/app/device/addOrDeleteCard" + "?lockId=234";
+            String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
+            if (result != null) {
+                HttpApi.e("getClientInfo()->" + result);
+                JSONObject resultObj = Ajax.getJSONObject(result);
+                int code = resultObj.getInt("code");
+                if (code == 0) {
+                    JSONArray cards = resultObj.getJSONArray("cards");
+                    Log.e("wh", "cards " + cards.toString());
+                    SqlUtil   sqlUtil = new SqlUtil(this);
+                    for(int i = 0 ;i <cards.length();i++){
+                        JSONObject o =(JSONObject) cards.get(i);
+                        Log.e("wh", "o " + o.toString());
+                        String cardNo = (String) o.get("cardNo");
+                        sqlUtil.insertCard(cardNo,lockId);
+                    }
+                }
+            } else {
+                //服务器异常或没有网络
+                HttpApi.e("getClientInfo()->服务器无响应");
+            }
+        } catch (Exception e) {
+            HttpApi.e("getClientInfo()->服务器数据解析异常");
+            e.printStackTrace();
         }
     }
 
@@ -1863,6 +1911,10 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
         if (localView != null) return;
         if (MainService.callConnection != null) {
             localView = (SurfaceView) MainService.callConnection.createVideoView(true, this, true);
+        }
+        // TODO: 2018/4/19
+        if (localView==null){
+            return;
         }
         localView.setVisibility(View.INVISIBLE);
         videoLayout.addView(localView);
@@ -3492,7 +3544,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             InvalidParameterException {
         if (mSerialPort == null) {
             /* Read serial port parameters */
-            SharedPreferences sp = getSharedPreferences("android_serialport_api" + "" + "" +
+            SharedPreferences sp = getSharedPreferences("android_serialport_api" + "" + "" + "" +
                     ".sample_preferences", MODE_PRIVATE);
             sp.edit().putString("DEVICE", "/dev/ttyS2").commit();
             sp.edit().putString("BAUDRATE", "115200").commit();
