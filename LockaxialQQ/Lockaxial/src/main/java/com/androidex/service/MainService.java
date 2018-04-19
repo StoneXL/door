@@ -407,6 +407,7 @@ public class MainService extends Service {
                     }
                 } else if (msg.what == MSG_CHECK_BLOCKNO) {
                     String blockNo = (String) msg.obj;
+                    Log.i(TAG, "开始检查房号 blockNo=" + blockNo);
                     startCheckBlockNo(blockNo);
 
                 } else if (msg.what == MSG_FINGER_DETECT) {
@@ -600,7 +601,8 @@ public class MainService extends Service {
                             isPullTime = true;
                         }
                     } else {
-                        HttpApi.i("TopActivity_", "处于当前程序");
+                        // TODO: 2018/4/18 注释掉无线打印信息
+                        //  HttpApi.i("TopActivity_", "处于当前程序");
                         handler.removeCallbacks(startMain);
                         isPullTime = false;
                     }
@@ -1044,6 +1046,7 @@ public class MainService extends Service {
             String url = DeviceConfig.SERVER_URL + "/app/device/checkBlockNo?communityId=" + this
                     .communityId;
             url = url + "&blockNo=" + blockNo.substring(0, 2);
+            Log.i(TAG, "调用检查房号blockNo的接口 url=" + url);
             try {
                 String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
                 if (result != null) {
@@ -1055,11 +1058,14 @@ public class MainService extends Service {
                     } else {
                         inputBlockId = 0;
                     }
+                    Log.i(TAG, "调用检查房号blockNo的接口 成功  inputBlockId=" + inputBlockId);
                     sendDialMessenger(Constant.MSG_CHECK_BLOCKNO, inputBlockId);
                 } else {
+                    Log.i(TAG, "调用检查房号blockNo的接口失败 -->服务器异常");
                     HttpApi.e("onCheckBlockNo()->服务器异常");
                 }
             } catch (Exception e) {
+                Log.i(TAG, "调用检查房号blockNo的接口失败" + e.toString());
                 sendDialMessenger(Constant.MSG_CHECK_BLOCKNO, -1);
                 e.printStackTrace();
             }
@@ -1753,6 +1759,7 @@ public class MainService extends Service {
                 url = url + "&blockId=" + this.blockId;
             }
             url = url + "&unitNo=" + this.unitNo;
+            Log.i(TAG, "呼叫所有成员接口url="+url+"callUuid="+callUuid);
             try {
                 String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
                 if (result != null && isCurrentCallWorking(callUuid)) {
@@ -3134,12 +3141,12 @@ public class MainService extends Service {
         String url = DeviceConfig.SERVER_URL +
                 "/app/advertisement/checkAdvertiseList?communityId=" + this.communityId;
         url = url + "&lockId=" + this.lockId;
-        Log.i(TAG, "url="+url);
+        Log.i(TAG, "url=" + url);
         JSONArray rows = null;
         try {
             String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
             if (result != null) {
-                Log.i(TAG, "result="+result);
+                Log.i(TAG, "result=" + result);
                 HttpApi.i("checkAdvertiseList()->" + result);
                 JSONObject obj = Ajax.getJSONObject(result);
                 int resultCode = obj.getInt("code");

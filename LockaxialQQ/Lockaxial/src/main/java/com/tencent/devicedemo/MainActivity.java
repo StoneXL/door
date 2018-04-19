@@ -1123,6 +1123,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
      * 检查楼栋编号
      */
     private void onCheckBlockNo() {
+        Log.i(TAG, "检查楼栋编号 onCheckBlockNo  blockNo=" + blockNo);
         if (blockId == 0) {
             blockNo = "";
             setDialValue(blockNo);
@@ -1214,6 +1215,9 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
         } else if (reason == MSG_CALLMEMBER_SERVER_ERROR) {
             Utils.DisplayToast(MainActivity.this, "无法从服务器获取住户信息，请联系管理处");
         }
+        if (faceHandler!=null){
+            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_CONTRAST,1000);
+        }
     }
 
     public void onCallDirectlyBegin() {
@@ -1261,11 +1265,13 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     }
 
     private void callInput(int key) {
+        Log.i(TAG, "callInput方法  key=" + key + "楼栋编号 blockId=" + blockId + " DeviceConfig.DEVICE_TYPE=" + DeviceConfig.DEVICE_TYPE);
         if (DeviceConfig.DEVICE_TYPE.equals("C")) {
             if (blockId == 0) {
                 if (blockNo.length() < DeviceConfig.BLOCK_LENGTH) {
                     blockNo = blockNo + key;
                     setDialValue(blockNo);
+                    Log.i(TAG, "输入的楼栋编号长度不为6 blockNo" + blockNo);
                     Log.e("blockNo", "1===" + blockNo);
                 }
                 if (blockNo.length() == DeviceConfig.BLOCK_NO_LENGTH) {
@@ -1273,6 +1279,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                     Message message = Message.obtain();
                     message.what = MainService.MSG_CHECK_BLOCKNO;
                     message.obj = blockNo;
+                    Log.i(TAG, "输入的楼栋编号满足长度为6 blockNo=" + blockNo);
                     Log.e("blockNo", "2===" + blockNo);
                     try {
                         serviceMessenger.send(message);
@@ -1295,6 +1302,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
      */
     private void unitNoInput(int key) {
         blockNo = blockNo + key;
+        Log.i(TAG, "blockNo=" + blockNo+"blockNo.length"+blockNo.length());
         setDialValue(blockNo);
         if (DeviceConfig.DEVICE_TYPE.equals("C")) {
             if (blockNo.length() == DeviceConfig.BLOCK_LENGTH) {
@@ -1536,10 +1544,14 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     }
 
     private void onKeyDown(int keyCode) {
+        Log.i(TAG, "按键keyCode=" + keyCode);
+        Log.i(TAG, "刷卡标识nfcFlag=" + nfcFlag);
         if (nfcFlag) {
+            Log.i(TAG, "录入卡片信息");
             inputCardInfo(keyCode);//录入卡片信息
         } else {
             int key = convertKeyCode(keyCode);
+            Log.i(TAG, "按键key=" + key + "模式currentStatus" + currentStatus);
             if (currentStatus == CALL_MODE || currentStatus == PASSWORD_MODE) {
                 if (key >= 0) {
                     if (currentStatus == CALL_MODE) {
@@ -2514,6 +2526,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
      * 开始呼叫
      */
     protected void startDialorPasswordDirectly(final String thisValue, final String fileUrl, final boolean isCall, String uuid) {
+        Log.i(TAG, "开始呼叫startDialorPasswordDirectly()" );
         if (currentStatus == CALLING_MODE || currentStatus == PASSWORD_CHECKING_MODE) {
             Message message = Message.obtain();
             String[] parameters = new String[3];
@@ -3052,10 +3065,11 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     @Override
     public Object onPreview(byte[] data, int width, int height, int format, long timestamp) {
         AFT_FSDKError err = engine.AFT_FSDK_FaceFeatureDetect(data, width, height, AFT_FSDKEngine.CP_PAF_NV21, result);
-        Log.d(TAG, "AFT_FSDK_FaceFeatureDetect =" + err.getCode());
-        Log.d(TAG, "Face=" + result.size());
+        // TODO: 2018/4/18 注释掉无线打印信息
+//        Log.d(TAG, "AFT_FSDK_FaceFeatureDetect =" + err.getCode());
+//        Log.d(TAG, "Face=" + result.size());
         for (AFT_FSDKFace face : result) {
-            Log.d(TAG, "Face:" + face.toString());
+            //   Log.d(TAG, "Face:" + face.toString());
         }
         if (mImageNV21 == null) {
             if (!result.isEmpty()) {
