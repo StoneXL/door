@@ -2693,7 +2693,7 @@ public class MainService extends Service {
                         getLastAdvertisementList();
                         sleep(DeviceConfig.AD_REFRESH_WAIT_TIME); //等待广告刷新的时间
                         //retrieveChangedFingerList();
-                        Log.i(TAG, "等待广告刷新的时间")
+                        Log.i(TAG, "等待广告刷新的时间");
                         retrieveChangedCardList();
                     }
                 } catch (InterruptedException e) {
