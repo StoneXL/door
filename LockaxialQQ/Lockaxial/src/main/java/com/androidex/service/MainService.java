@@ -256,9 +256,9 @@ public class MainService extends Service {
     private int fingerDetectSteps = 0;
     private boolean fingerDetectResult = false;
 
-    private int lastVersion = 0;
+    private int lastVersion = 0;//本地当前版本号
     private String lastVersionFile = "";
-    private String lastVersionStatus = "L"; //L: last version 已N: find new version D：downloading
+    private String lastVersionStatus = "L"; //L: last version N: find new version D：downloading
     // P: pending to install I: installing  版本状态
     private int downloadingFlag = 0; //0：not downloading 1:downloading 2:stop download
 
@@ -267,10 +267,10 @@ public class MainService extends Service {
     Thread updateThread = null;
     private hwService hwservice;
 
-    private AudioManager audioManager;
+    private AudioManager audioManager;//音频管理器
 
     //xiaozd add
-    private ActivityManager activityManager;
+    private ActivityManager activityManager;//Activity管理类
     private boolean isPullTime = false;
     private Timer activityTimer = null;
     private Runnable startMain = new Runnable() {
@@ -289,6 +289,7 @@ public class MainService extends Service {
     public void onCreate() {
         HttpApi.i("MainService开始初始化");
         activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        // TODO: 2018/4/19  //hwservice干嘛用的?
         hwservice = new hwService(MainService.this);
         wifiAdmin = new WifiAdmin(this);
         audioManager = (AudioManager) getSystemService(Service.AUDIO_SERVICE);
@@ -308,7 +309,8 @@ public class MainService extends Service {
             public void handleMessage(Message msg) {
                 if (msg.what == REGISTER_ACTIVITY_INIT) { //InitActivity入口
                     netWorkstate = (boolean) msg.obj;
-                    Log.i(TAG, "InitActivity启动mainservice服务连接  MainServic开始初始化"+"----netWorkstate"+netWorkstate);
+                    Log.i(TAG, "InitActivity启动mainservice服务连接  MainServic开始初始化" +
+                            "----netWorkstate" + netWorkstate);
                     initMessenger = msg.replyTo;
                     init();
                     HttpApi.i("MainServic开始初始化");
@@ -880,8 +882,10 @@ public class MainService extends Service {
         try {
             String url = DeviceConfig.SERVER_URL + "/app/auth/deviceLogin";
             JSONObject data = new JSONObject();
-            data.put("username", mac);
-            data.put("password", key);
+            data.put("lockMac", mac);
+            data.put("lockKey", key);
+//            data.put("username", mac);
+//            data.put("password", key);
             String result = HttpApi.getInstance().loadHttpforPost(url, data, httpServerToken);
             if (result != null) {
                 HttpApi.i("getClientInfo()->" + result);
@@ -1760,7 +1764,7 @@ public class MainService extends Service {
                 url = url + "&blockId=" + this.blockId;
             }
             url = url + "&unitNo=" + this.unitNo;
-            Log.i(TAG, "呼叫所有成员接口url="+url+"callUuid="+callUuid);
+            Log.i(TAG, "呼叫所有成员接口url=" + url + "callUuid=" + callUuid);
             try {
                 String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
                 if (result != null && isCurrentCallWorking(callUuid)) {
@@ -3333,7 +3337,7 @@ public class MainService extends Service {
         checkThread.start();
     }
 
-    //版本更新
+    //版本更新(检查当前版本是否和服务器最新版本一致，如果不是最新版本则发出更新消息)
     protected void checkNewVersion() {
         Log.v("UpdateService", "check New Version");
         String url = DeviceConfig.UPDATE_SERVER_URL + DeviceConfig.UPDATE_RELEASE_FOLDER +
@@ -3368,9 +3372,9 @@ public class MainService extends Service {
             String[] fileValues = newFile.split("\\.");
             String versionName = fileValues[fileValues.length - 2];
             int version = new Integer(versionName);
-            Log.v("UpdateService", "lastVersionStatus=" + lastVersionStatus + ",this" + "" +
+            Log.v("UpdateService", "lastVersionStatus=" + lastVersionStatus + ",this" + "" + "" +
                     ".lastVersion=" + lastVersion);
-            if (version == this.lastVersion) {
+            if (version == this.lastVersion) {//本地版本号与网络版本号一致
                 if (lastVersionStatus.equals("L")) {
                     lastVersionStatus = "N";
                     lastVersion = version;
@@ -3381,7 +3385,7 @@ public class MainService extends Service {
                 } else if (lastVersionStatus.equals("N")) {
                     startDownloadThread();
                 }
-            } else if (version > this.lastVersion) {
+            } else if (version > this.lastVersion) {//本地版本号比网络版本号低
                 if (lastVersionStatus.equals("D")) {
                     stopDownloadThread();
                 }
@@ -3524,7 +3528,7 @@ public class MainService extends Service {
                 try {
                     while (!isInterrupted()) {
                         Calendar c = Calendar.getInstance();
-                        int hour = c.get(Calendar.HOUR_OF_DAY);//24小时制
+                        int hour = c.get(Calendar.HOUR_OF_DAY);//24小时制 以中午12点为0点
                         if (DeviceConfig.APPLICATION_MODEL == 0) {//应用状态为调试模式
                             if (lastVersionStatus.equals("P")) {
                                 lastVersionStatus = "I";
@@ -3532,10 +3536,10 @@ public class MainService extends Service {
                             } else {
                                 sleep(1000 * 60 * 3);
                             }
-                        } else {//应用状态为正式
-                            if (hour == DeviceConfig.RELEASE_VERSION_UPDATE_TIME) {
-                                if (lastVersionStatus.equals("P")) {
-                                    lastVersionStatus = "I";
+                        } else {//应用状态为正式模式
+                            if (hour == DeviceConfig.RELEASE_VERSION_UPDATE_TIME) {//当前时间为下午3点时
+                                if (lastVersionStatus.equals("P")) {//版本状态为待安装
+                                    lastVersionStatus = "I";//版本状态设为正在安装
                                     updateApp();
                                 }
                             } else {
@@ -3557,6 +3561,9 @@ public class MainService extends Service {
         }
     }
 
+    /**
+     * 更新应用
+     */
     protected void updateApp() {
         String SDCard = Environment.getExternalStorageDirectory() + "";
         String fileName = SDCard + "/" + lastVersionFile;
@@ -3575,6 +3582,10 @@ public class MainService extends Service {
         }
     }
 
+    /**
+     * 安装apk
+     * @param fileName
+     */
     protected void startInstallApp(final String fileName) {
 //        Intent app = this.getPackageManager().getLaunchIntentForPackage(DeviceConfig
 // .TARGET_PACKAGE_NAME);

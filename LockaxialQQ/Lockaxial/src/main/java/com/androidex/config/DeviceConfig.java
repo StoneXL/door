@@ -5,13 +5,13 @@ package com.androidex.config;
  */
 public class DeviceConfig {
     /********residential*****/
-    public static final String SERVER_URL="http://www.lockaxial.com";
+//    public static final String SERVER_URL="http://www.lockaxial.com";
+    public static final String SERVER_URL="http://192.168.8.146:80";
 	public static final String UPDATE_SERVER_URL="http://www.lockaxial.com";
     public static final String UPDATE_RELEASE_FOLDER="/release/doorAccessMachine/v1/";
     public static final String UPDATE_RELEASE_PACKAGE="package.json";
     public static final int RELEASE_VERSION=5;//当前版本号 改成5---4.16
     public static int RELEASE_VERSION_WAIT_TIME=1000*60*1;//等待新版本检查的时间
-    // TODO: 2018/4/19 下午3点时更新??
     public static int RELEASE_VERSION_UPDATE_TIME=3;
     public static final String TARGET_PACKAGE_NAME="com.tencent.devicedemo";
     public static final String TARGET_ACTIVITY_NAME="com.tencent.devicedemo.InitActivity";
