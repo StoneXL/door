@@ -1637,6 +1637,8 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                         .DEVICE_KEYCODE_STAR) {
                     resetDial();
                     startDisconnectDirectCall();
+
+
                 }
             }
         }

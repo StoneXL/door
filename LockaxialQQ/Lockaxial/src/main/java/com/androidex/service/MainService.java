@@ -879,6 +879,8 @@ public class MainService extends Service {
 
     protected boolean getClientInfo() throws JSONException {
         boolean resultValue = false;
+
+
         try {
             String url = DeviceConfig.SERVER_URL + "/app/auth/deviceLogin";
             JSONObject data = new JSONObject();
