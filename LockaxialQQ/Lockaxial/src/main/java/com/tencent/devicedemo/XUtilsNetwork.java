@@ -17,6 +17,10 @@ import java.util.Set;
 import static com.lidroid.xutils.http.client.HttpRequest.HttpMethod.GET;
 import static com.lidroid.xutils.http.client.HttpRequest.HttpMethod.POST;
 
+/**
+ * 网络请求工具类
+ * @param <T>
+ */
 public class XUtilsNetwork<T> {
     /**
      * Get请求

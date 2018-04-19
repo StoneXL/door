@@ -9,8 +9,9 @@ public class DeviceConfig {
 	public static final String UPDATE_SERVER_URL="http://www.lockaxial.com";
     public static final String UPDATE_RELEASE_FOLDER="/release/doorAccessMachine/v1/";
     public static final String UPDATE_RELEASE_PACKAGE="package.json";
-    public static final int RELEASE_VERSION=5;
-    public static int RELEASE_VERSION_WAIT_TIME=1000*60*1;
+    public static final int RELEASE_VERSION=5;//当前版本号 改成5---4.16
+    public static int RELEASE_VERSION_WAIT_TIME=1000*60*1;//等待新版本检查的时间
+    // TODO: 2018/4/19 下午3点时更新??
     public static int RELEASE_VERSION_UPDATE_TIME=3;
     public static final String TARGET_PACKAGE_NAME="com.tencent.devicedemo";
     public static final String TARGET_ACTIVITY_NAME="com.tencent.devicedemo.InitActivity";
@@ -33,7 +34,7 @@ public class DeviceConfig {
     public static boolean IS_RFID_AVAILABLE=false;
     public static boolean IS_ASSEMBLE_AVAILABLE=false;
     public static boolean IS_FINGER_AVAILABLE=true;
-	public static boolean IS_NFC_AVAILABLE=true;
+	public static boolean IS_NFC_AVAILABLE=true;//nfc系统是否有效,默认有效
     public static boolean IS_AEX_AVAILABLE=true;
     public static boolean IS_NFC_PORT_AVAILABLE=false;
     public static boolean IS_AD_AVAILABLE=true;
