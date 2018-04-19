@@ -39,7 +39,7 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
 
         initImageLoader();
 
-        ArcsoftManager.getInstance().initArcsoft(this);
+        ArcsoftManager.getInstance().initArcsoft(this);//虹软人脸识别初始化
 
         super.onCreate();
     }
@@ -48,23 +48,29 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
         return application;
     }
 
+    /**
+     * 网络连接初始化(开源项目Xutils)
+     */
     public void initHttp() {
         httpUtils = new HttpUtils("utf-8");
-        httpUtils.configRequestThreadPoolSize(5);
-        httpUtils.configSoTimeout(30000);
+        httpUtils.configRequestThreadPoolSize(5);//请求线程池数为5?
+        httpUtils.configSoTimeout(30000);//超时30秒?
         httpUtils.configResponseTextCharset("utf-8");
         httpUtils.configRequestRetryCount(3);
     }
 
+    /**
+     * 图片加载初始化
+     * (开源项目Android-Universal-Image-Loader,地址https://github
+     * .com/nostra13/Android-Universal-Image-Loader)
+     */
     private void initImageLoader() {
         imageLoader = ImageLoader.getInstance();
 
         String cachePath = null;
 
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            cachePath =
-                    Environment.getExternalStorageDirectory().getPath()
-                            + "/qqlock/cache";
+            cachePath = Environment.getExternalStorageDirectory().getPath() + "/qqlock/cache";
         } else {
             cachePath = getCacheDir().getPath() + "/qqlock/cache";
         }
@@ -75,22 +81,15 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
 
         int memoryCacheSize = (int) Runtime.getRuntime().maxMemory() / 8;
 
-        ImageLoaderConfiguration configuration =
-                new ImageLoaderConfiguration.Builder(getApplicationContext())
-                        .threadPoolSize(5)
-                        .memoryCacheSize(memoryCacheSize)
-                        .diskCacheFileCount(500)
-                        .diskCache(new UnlimitedDiskCache(cacheFile))
-                        .build();
+        ImageLoaderConfiguration configuration = new ImageLoaderConfiguration.Builder
+                (getApplicationContext()).threadPoolSize(5).memoryCacheSize(memoryCacheSize)
+                .diskCacheFileCount(500).diskCache(new UnlimitedDiskCache(cacheFile)).build();
 
         imageLoader.init(configuration);
 
-        options = new DisplayImageOptions.Builder()
-                .showImageOnFail(R.mipmap.bg1)
-                .showImageOnLoading(R.mipmap.bg1)
-                .cacheOnDisk(true)
-                .bitmapConfig(Bitmap.Config.ARGB_8888)
-                .build();
+        options = new DisplayImageOptions.Builder().showImageOnFail(R.mipmap.bg1)
+                .showImageOnLoading(R.mipmap.bg1).cacheOnDisk(true).bitmapConfig(Bitmap.Config
+                        .ARGB_8888).build();
 
 
     }
@@ -111,19 +110,17 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
     private void setStrictMode() {
         if (Integer.valueOf(Build.VERSION.SDK) > 3) {
             // Log.d(LOG_TAG, "Enabling StrictMode policy over Sample application");
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectNetwork().penaltyLog()
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork()
+                    .penaltyLog()
                     // .penaltyDeath()
                     .build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll()
-                    .penaltyLog().build());
-
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog()
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
                     .build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
-                    .penaltyLog().penaltyDeath().build());
+
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads()
+                    .detectDiskWrites().detectNetwork().penaltyLog().build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects().penaltyLog().penaltyDeath().build());
         }
     }
 
@@ -133,12 +130,11 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
     public void uncaughtException(Thread thread, Throwable ex) {
         // System.exit(0);
 
-        Intent intent = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage
+                (getBaseContext().getPackageName());
 
-        PendingIntent restartIntent = PendingIntent.getActivity(
-                getApplicationContext(),
-                0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent restartIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                intent, Intent.FLAG_ACTIVITY_NEW_TASK);
 
         // 退出程序
         AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

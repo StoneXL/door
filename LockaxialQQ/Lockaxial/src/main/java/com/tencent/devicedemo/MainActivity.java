@@ -229,7 +229,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     private EditText tv_input, et_blackno, et_unitno;
     private BinderListAdapter mAdapter;
     private NotifyReceiverQQ mNotifyReceiver;
-    private NfcReader nfcReader;
+    private NfcReader nfcReader;//用于nfc卡扫描
     private AutoScrollViewPager viewPager;
     private Banner banner;
     private Bg_Adapter bgAdapter;
@@ -269,7 +269,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     private GoogleApiClient client;
     private AdverErrorCallBack adverErrorCallBack;
     private JSONArray rows;
-    private Receive receive;
+    private Receive receive; //本地广播
     private BluetoothAdapter mBtAdapter;
     private BTTempDevice device;
     private BluetoothDevice bluetooth_dev;
@@ -722,7 +722,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     }
 
     /**
-     * 网络获得轮播背景图片数据
+     * 网络获得轮播背景图片数据 (未被使用)
      */
     private void getBgBanners() {
         XUtilsNetwork.getInstance().getBgBanners(new NetworkCallBack() {//网络请求
@@ -831,7 +831,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     }
 
     /**
-     * 初始化视频通话布局
+     * 初始化视频通话布局(用于天翼rtc)
      */
     protected void initScreen() {
         //callLayout=(LinearLayout) findViewById(R.id.call_pane);
@@ -1473,8 +1473,8 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
      * 录入卡片
      */
     private void receiveCard() {
-        String bla = et_blackno.getText().toString();
-        String uin = et_unitno.getText().toString();
+        String bla = et_blackno.getText().toString();//楼栋
+        String uin = et_unitno.getText().toString();//房屋编号
         Log.d(TAG, "receiveCard: bla=" + bla);
         Log.d(TAG, "receiveCard: uni=" + uin);
         try {
@@ -2391,7 +2391,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
     }
 
     private void initAexNfcReader() {
-        if (DeviceConfig.IS_NFC_AVAILABLE) {
+        if (DeviceConfig.IS_NFC_AVAILABLE) {//判断nfc是否可用
             nfcReader = new NfcReader(this);
             //enableReaderMode(); //xiaozd add
             receive = new Receive();

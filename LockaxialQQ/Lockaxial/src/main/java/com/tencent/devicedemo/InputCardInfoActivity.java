@@ -124,7 +124,8 @@ public class InputCardInfoActivity extends Activity {
             } else {//输入密码
                 callInput(key, R.id.et_password);
             }
-        } else if (keyCode == KeyEvent.KEYCODE_STAR || keyCode == DeviceConfig.DEVICE_KEYCODE_STAR) {
+        } else if (keyCode == KeyEvent.KEYCODE_STAR || keyCode == DeviceConfig
+                .DEVICE_KEYCODE_STAR) {
             if (!flag && (password == null || password.equals(""))) {//返回到账号输入框
                 et_admin.setFocusable(true);
                 et_admin.setFocusableInTouchMode(true);
@@ -142,7 +143,8 @@ public class InputCardInfoActivity extends Activity {
             if (flag && (admin == null || admin.equals(""))) {
                 finish();
             }
-        } else if (keyCode == KeyEvent.KEYCODE_POUND || keyCode == DeviceConfig.DEVICE_KEYCODE_POUND) {//确认键
+        } else if (keyCode == KeyEvent.KEYCODE_POUND || keyCode == DeviceConfig
+                .DEVICE_KEYCODE_POUND) {//确认键
             if (flag) {
                 if (!blockNo.equals("")) {
                     blockNo = "";
@@ -175,8 +177,8 @@ public class InputCardInfoActivity extends Activity {
      */
     private void login() {
         try {
-            String url = DeviceConfig.SERVER_URL + "/app/rfid/adminLogin?username=" + this.admin;
-            url = url + "&password=" + this.password;
+            String url = DeviceConfig.SERVER_URL + "/app/rfid/adminLogin?username=" + this.admin
+                    + "&password=" + this.password;
             Log.d(TAG, "login: url=" + url);
             try {
                 URL thisUrl = new URL(url);

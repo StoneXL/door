@@ -201,8 +201,8 @@ public class MainService extends Service {
     public String key = null;
     public static int communityId = 0;//社区ID
     public int blockId = 0;//楼栋ID
-    public int inputBlockId = 0;
-    public static int lockId = 0;
+    public int inputBlockId = 0;  //
+    public static int lockId = 0; //锁ID
     public String unitNo = "";
     public String tempKey = "";
     public String messageFrom = null;
@@ -258,8 +258,8 @@ public class MainService extends Service {
 
     private int lastVersion = 0;
     private String lastVersionFile = "";
-    private String lastVersionStatus = "L"; //L: last version N: find new version D：downloading
-    // P: pending to install I: installing
+    private String lastVersionStatus = "L"; //L: last version 已N: find new version D：downloading
+    // P: pending to install I: installing  版本状态
     private int downloadingFlag = 0; //0：not downloading 1:downloading 2:stop download
 
     Thread checkThread = null;
@@ -308,6 +308,7 @@ public class MainService extends Service {
             public void handleMessage(Message msg) {
                 if (msg.what == REGISTER_ACTIVITY_INIT) { //InitActivity入口
                     netWorkstate = (boolean) msg.obj;
+                    Log.i(TAG, "InitActivity启动mainservice服务连接  MainServic开始初始化"+"----netWorkstate"+netWorkstate);
                     initMessenger = msg.replyTo;
                     init();
                     HttpApi.i("MainServic开始初始化");
@@ -800,7 +801,7 @@ public class MainService extends Service {
     }
 
     /**
-     * 获取WIFI mac地址和密码
+     * 获取WIFI mac地址和mac密码
      */
     protected boolean initMacAddress() {
         String mac = getMac();
@@ -2685,7 +2686,6 @@ public class MainService extends Service {
                         getLastAdvertisementList();
                         sleep(DeviceConfig.AD_REFRESH_WAIT_TIME); //等待广告刷新的时间
                         //retrieveChangedFingerList();
-                        Log.i(TAG, "等待广告刷新的时间");
                         retrieveChangedCardList();
                     }
                 } catch (InterruptedException e) {
@@ -2700,7 +2700,6 @@ public class MainService extends Service {
         String url = DeviceConfig.SERVER_URL + "/app/device/retrieveCardList?communityId=" + this
                 .communityId + "&blockId=" + this.blockId + "&lockId=" + this.lockId;
         try {
-            Log.i(TAG, "retrieveCardList--url=" + url);
             String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
             if (result != null) {
                 HttpApi.i("retrieveCardList()->" + result);
@@ -3134,12 +3133,10 @@ public class MainService extends Service {
         String url = DeviceConfig.SERVER_URL +
                 "/app/advertisement/checkAdvertiseList?communityId=" + this.communityId;
         url = url + "&lockId=" + this.lockId;
-        Log.i(TAG, "url="+url);
         JSONArray rows = null;
         try {
             String result = HttpApi.getInstance().loadHttpforGet(url, httpServerToken);
             if (result != null) {
-                Log.i(TAG, "result="+result);
                 HttpApi.i("checkAdvertiseList()->" + result);
                 JSONObject obj = Ajax.getJSONObject(result);
                 int resultCode = obj.getInt("code");
@@ -3245,7 +3242,6 @@ public class MainService extends Service {
     }
 
     protected void adjustAdvertiseFiles() {
-        Log.i(TAG, "adjustAdvertiseFiles");
         String SDCard = Environment.getExternalStorageDirectory() + "";
         String localFilePath = SDCard + "/" + DeviceConfig.LOCAL_FILE_PATH + "/";//文件存储路径
         Enumeration<String> keys = currentAdvertisementFiles.keys();
@@ -3516,15 +3512,15 @@ public class MainService extends Service {
                 try {
                     while (!isInterrupted()) {
                         Calendar c = Calendar.getInstance();
-                        int hour = c.get(Calendar.HOUR_OF_DAY);
-                        if (DeviceConfig.APPLICATION_MODEL == 0) {
+                        int hour = c.get(Calendar.HOUR_OF_DAY);//24小时制
+                        if (DeviceConfig.APPLICATION_MODEL == 0) {//应用状态为调试模式
                             if (lastVersionStatus.equals("P")) {
                                 lastVersionStatus = "I";
                                 updateApp();
                             } else {
                                 sleep(1000 * 60 * 3);
                             }
-                        } else {
+                        } else {//应用状态为正式
                             if (hour == DeviceConfig.RELEASE_VERSION_UPDATE_TIME) {
                                 if (lastVersionStatus.equals("P")) {
                                     lastVersionStatus = "I";
