@@ -2302,11 +2302,17 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             new Thread() {
                 public void run() {
                     final String thisUuid = uuid;
-                    if (checkTakePictureAvailable(thisUuid)) {
-                        doTakePicture(thisValue, isCall, uuid, callback);
-                    } else {
-                        Log.v("MainActivity", "取消拍照");
+                    try {
+                        sleep(1000);
+                        if (checkTakePictureAvailable(thisUuid)) {
+                            doTakePicture(thisValue, isCall, uuid, callback);
+                        } else {
+                            Log.v("MainActivity", "取消拍照");
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+
                 }
             }.start();
         }
