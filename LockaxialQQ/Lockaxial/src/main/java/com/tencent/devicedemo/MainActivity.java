@@ -1349,11 +1349,12 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
      * 开始呼叫
      */
     private void startDialing(String num) {
+
         Log.v(FACE_TAG, "startDialing-->" + num);
         if (num.equals("9999") && faceHandler != null) {
             //人脸识别录入
-            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);
-            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_INPUT, 100);
+            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);//录入之前,先将人脸识别暂停
+            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_INPUT, 100);//开始人脸录入
             return;
         }
 
@@ -1605,15 +1606,18 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                     }
                     String str = tv_input_text.getText().toString();
                     if (str == null || str.equals("")) {
+                        // TODO: 2018/4/21 暂时注释
                         //跳转到登录界面
-                        Intent intent = new Intent(this, InputCardInfoActivity.class);
-
-                        startActivityForResult(intent, INPUT_CARDINFO_REQUESTCODE);
+//                        Intent intent = new Intent(this, InputCardInfoActivity.class);
+//
+//                        startActivityForResult(intent, INPUT_CARDINFO_REQUESTCODE);
                         // TODO: 2018/4/19 下面增加,改为获得卡片列表接口做测试
                         new Thread() {
                             public void run() {
                                 try {
-                                    addOrDeleteCard();
+                                    // TODO: 2018/4/21 暂时注释
+//                                    addOrDeleteCard();
+                                    downLoadFace();
                                 } catch (Exception e) {
 
                                 }
@@ -1659,6 +1663,55 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             }
         }
     }
+
+    /**
+     * 下载人脸识别用图片
+     */
+    private void downLoadFace() {
+        try {
+            String file = "/app/download/face/20180421121538";
+            int lastIndex = file.lastIndexOf("/");
+            String fileName = file.substring(lastIndex + 1);
+            //根据文件名返回本地路径
+            String localFile = HttpUtils.getLocalFile(fileName);
+            if (localFile == null) {
+                //如果本地没有对应文件,则下载文件至本地
+                localFile = HttpUtils.downloadFile(file);
+                if (localFile != null) {
+                    if (localFile.endsWith(".temp")) {
+                        localFile = localFile.substring(0, localFile.length() - 5);
+                    }
+                    Log.e("wh", "fileName " + fileName + " localFile " + localFile);
+                    //将文件名和本地路径塞入集合
+//                currentAdvertisementFiles.put(fileName, localFile);
+                    File file1 = new File(localFile + ".temp");
+                    if (file1.exists()) {
+                        file1.renameTo(new File(localFile+".jpg"));
+                        String path = file1.getPath();
+                        Log.e("wh", "图片路径" + path);
+                        if (file1 != null) {
+                            Intent intent = new Intent(this, FaceRegisterActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("imagePath", file1.getPath());
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                        }
+                    }
+                }
+            } else {
+//            currentAdvertisementFiles.put(fileName, localFile);
+            }
+        } catch (Exception e) {
+        }
+
+
+//        sendDialMessenger(MSG_REFRESH_LOCKNAME, lockName);
+
+
+
+    }
+
+
 
     /**
      * 从服务器获得已注册卡片列表的接口
