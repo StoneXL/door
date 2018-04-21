@@ -1686,13 +1686,19 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
 //                currentAdvertisementFiles.put(fileName, localFile);
                     File file1 = new File(localFile + ".temp");
                     if (file1.exists()) {
+
+                        File file2 = new File(localFile + ".jpg");
+                        Log.e("wh", "file2 " + file2.getPath());
+                        boolean b = file1.renameTo(file2);//重命名,去掉.temp
+
+
                         file1.renameTo(new File(localFile+".jpg"));
-                        String path = file1.getPath();
+                        String path = file2.getPath();
                         Log.e("wh", "图片路径" + path);
                         if (file1 != null) {
                             Intent intent = new Intent(this, FaceRegisterActivity.class);
                             Bundle bundle = new Bundle();
-                            bundle.putString("imagePath", file1.getPath());
+                            bundle.putString("imagePath", file2.getPath());
                             intent.putExtras(bundle);
                             startActivity(intent);
                         }
