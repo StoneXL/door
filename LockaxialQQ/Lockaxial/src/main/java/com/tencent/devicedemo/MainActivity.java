@@ -1358,6 +1358,39 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             return;
         }
 
+        //输入"8888"录入网络的卡信息
+        if (num.equals("8888") && faceHandler != null) {
+            new Thread() {
+                public void run() {
+                    try {
+                        addOrDeleteCard();
+                    } catch (Exception e) {
+
+                    }
+                }
+            }.start();
+            return;
+        }
+
+        //输入"7777"录入网络的人脸信息
+        if (num.equals("7777") && faceHandler != null) {
+            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);//录入之前,先将人脸识别暂停
+//            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_INPUT, 100);//开始人脸录入
+
+            new Thread() {
+                public void run() {
+                    try {
+                        downLoadFace();
+                    } catch (Exception e) {
+
+                    }
+                }
+            }.start();
+            return;
+        }
+
+
+
         //呼叫前，确认摄像头不被占用
         if (faceHandler != null) {
             faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);
@@ -1606,23 +1639,24 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                     }
                     String str = tv_input_text.getText().toString();
                     if (str == null || str.equals("")) {
-                        // TODO: 2018/4/21 暂时注释
                         //跳转到登录界面
-//                        Intent intent = new Intent(this, InputCardInfoActivity.class);
-//
-//                        startActivityForResult(intent, INPUT_CARDINFO_REQUESTCODE);
-                        // TODO: 2018/4/19 下面增加,改为获得卡片列表接口做测试
-                        new Thread() {
-                            public void run() {
-                                try {
-                                    // TODO: 2018/4/21 暂时注释
-//                                    addOrDeleteCard();
-                                    downLoadFace();
-                                } catch (Exception e) {
+                        Intent intent = new Intent(this, InputCardInfoActivity.class);
 
-                                }
-                            }
-                        }.start();
+                        startActivityForResult(intent, INPUT_CARDINFO_REQUESTCODE);
+                        // TODO: 2018/4/19 下面增加,改为获得卡片列表接口做测试
+//                        new Thread() {
+//                            public void run() {
+//                                try {
+//                                    // TODO: 2018/4/21 暂时注释
+//                                    addOrDeleteCard();
+//                                    downLoadFace();
+//                                } catch (Exception e) {
+//
+//                                }
+//                            }
+//                        }.start();
+
+
                     }
                 }
             } else if (currentStatus == ERROR_MODE) {
@@ -1689,9 +1723,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
 
                         File file2 = new File(localFile + ".jpg");
                         Log.e("wh", "file2 " + file2.getPath());
-                        boolean b = file1.renameTo(file2);//重命名,去掉.temp
-
-
+                       file1.renameTo(file2);//重命名,去掉.temp
                         file1.renameTo(new File(localFile+".jpg"));
                         String path = file2.getPath();
                         Log.e("wh", "图片路径" + path);
@@ -1709,15 +1741,8 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             }
         } catch (Exception e) {
         }
-
-
 //        sendDialMessenger(MSG_REFRESH_LOCKNAME, lockName);
-
-
-
     }
-
-
 
     /**
      * 从服务器获得已注册卡片列表的接口
@@ -1736,7 +1761,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                     SqlUtil   sqlUtil = new SqlUtil(this);
                     for(int i = 0 ;i <cards.length();i++){
                         JSONObject o =(JSONObject) cards.get(i);
-                        Log.e("wh", "o " + o.toString());
+                        Log.e("wh", "卡片 " + o.toString());
                         String cardNo = (String) o.get("cardNo");
                         sqlUtil.insertCard(cardNo,lockId);
                     }
