@@ -1374,7 +1374,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
 
         //输入"7777"录入网络的人脸信息
         if (num.equals("7777") && faceHandler != null) {
-            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);//录入之前,先将人脸识别暂停
+//            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_PAUSE, 100);//录入之前,先将人脸识别暂停
 //            faceHandler.sendEmptyMessageDelayed(MSG_FACE_DETECT_INPUT, 100);//开始人脸录入
 
             new Thread() {
